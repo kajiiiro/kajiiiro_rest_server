@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += sql
+QT       += network
 
 TARGET = kajiiiro_rest_server
 TEMPLATE = app

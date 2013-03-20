@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>421</width>
-    <height>352</height>
+    <height>370</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,7 @@
           <x>10</x>
           <y>10</y>
           <width>381</width>
-          <height>41</height>
+          <height>51</height>
          </rect>
         </property>
         <property name="frameShape">
@@ -44,25 +44,38 @@
           <rect>
            <x>10</x>
            <y>10</y>
-           <width>261</width>
-           <height>21</height>
+           <width>171</width>
+           <height>31</height>
           </rect>
          </property>
          <property name="text">
           <string>status</string>
          </property>
         </widget>
-        <widget class="QPushButton" name="pushButton_start_stop">
+        <widget class="QPushButton" name="pushButton_start">
          <property name="geometry">
           <rect>
-           <x>280</x>
+           <x>190</x>
            <y>10</y>
            <width>91</width>
-           <height>21</height>
+           <height>31</height>
           </rect>
          </property>
          <property name="text">
           <string>start</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="pushButton_stop">
+         <property name="geometry">
+          <rect>
+           <x>290</x>
+           <y>10</y>
+           <width>85</width>
+           <height>31</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>stop</string>
          </property>
         </widget>
        </widget>
@@ -70,9 +83,9 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>60</y>
+          <y>70</y>
           <width>381</width>
-          <height>171</height>
+          <height>181</height>
          </rect>
         </property>
         <property name="title">
@@ -82,8 +95,8 @@
          <property name="geometry">
           <rect>
            <x>270</x>
-           <y>120</y>
-           <width>98</width>
+           <y>130</y>
+           <width>101</width>
            <height>27</height>
           </rect>
          </property>
@@ -91,7 +104,7 @@
           <string>load</string>
          </property>
         </widget>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -175,15 +188,7 @@
           </item>
          </layout>
         </widget>
-        <zorder>lineEdit_host</zorder>
-        <zorder>lineEdit_db_name</zorder>
-        <zorder>lineEdit_user</zorder>
-        <zorder>lineEdit_pass</zorder>
-        <zorder>label_host</zorder>
-        <zorder>label_db_name</zorder>
-        <zorder>label_user</zorder>
-        <zorder>label_pass</zorder>
-        <zorder>lineEdit_host</zorder>
+        <zorder>layoutWidget</zorder>
         <zorder>pushButton_load</zorder>
        </widget>
       </widget>
@@ -213,8 +218,6 @@
      </widget>
     </item>
    </layout>
-   <zorder>horizontalLayoutWidget_2</zorder>
-   <zorder>tabWidget</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -237,7 +240,7 @@
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>true</bool>
+    <bool>false</bool>
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>

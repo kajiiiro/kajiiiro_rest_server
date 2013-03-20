@@ -18,7 +18,7 @@ kajiiiro_db::~kajiiiro_db()
     delete m_db;
 }
 
-bool kajiiiro_db::connectDB
+bool kajiiiro_db::connect
 (
     const QString &host
     ,const QString &db_name

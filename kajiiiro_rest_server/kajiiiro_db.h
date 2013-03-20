@@ -9,7 +9,7 @@ class kajiiiro_db
 public:
     kajiiiro_db();
     ~kajiiiro_db();
-    bool connectDB
+    bool connect
     (
         const QString& host
         ,const QString& db_name

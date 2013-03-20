@@ -7,6 +7,7 @@ namespace Ui {
 class kajiiiro_rest_server;
 }
 class kajiiiro_db;
+class kajiiiro_server;
 
 class kajiiiro_rest_server : public QMainWindow
 {
@@ -19,9 +20,17 @@ public:
 private slots:
     void on_pushButton_load_clicked();
 
+    void on_pushButton_start_clicked();
+
+    void on_pushButton_stop_clicked();
+
+    void send();
+
 private:
     Ui::kajiiiro_rest_server *ui;
     kajiiiro_db *m_db;
+    kajiiiro_server *m_server;
+    int m_port;
 };
 
 #endif // KAJIIIRO_REST_SERVER_H
