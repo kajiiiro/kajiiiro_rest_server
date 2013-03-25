@@ -1,43 +1,64 @@
-#include <QtNetwork/QTcpServer>
-#include <QtNetwork/QTcpSocket>
-#include <QtGui/QMessageBox>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <cstring>
 #include "kajiiiro_server.h"
 
-kajiiiro_server::kajiiiro_server() :
-    m_server(new QTcpServer(0))
+int kajiiiro_server::start(std::string &str_msg)
 {
-}
-
-bool kajiiiro_server::session(const int port, QString &error_msg)
-{
-    if (false == m_server->listen(QHostAddress::Any, port))
+    int i_server;
+    int i_client;
+    int i_port = 7766;
     {
-        error_msg = m_server->errorString();
-        return false;
+        i_server = socket(AF_INET, SOCK_STREAM, 0);
+        if (i_server < 0)
+        {
+            return SERVER_ERROR;
+        }
+        sockaddr_in reader_addr;
+        memset(&reader_addr, '\0', sizeof(reader_addr));
+        reader_addr.sin_family = AF_INET;
+        reader_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+        reader_addr.sin_port = htons(i_port);
+        if (bind(i_server, reinterpret_cast<sockaddr*>(&reader_addr), sizeof(reader_addr)) < 0)
+        {
+            close(i_server);
+            return SERVER_ERROR;
+        }
+        if (listen(i_server, 1) < 0)
+        {
+            close(i_server);
+            return SERVER_ERROR;
+        }
+        sockaddr_in writer_addr;
+        memset(&writer_addr, '\0', sizeof(writer_addr));
+        socklen_t socket_len;
+        i_client = accept(i_server,reinterpret_cast<sockaddr*>(&writer_addr), &socket_len);
+        if (i_client < 0)
+        {
+            close(i_server);
+            return SERVER_ERROR;
+        }
+        char c_buf[1024];
+        memset(c_buf, '\0', 1024);
+        if (read(i_client, c_buf, 1024) <= 0)
+        {
+            close(i_server);
+            close(i_client);
+            return SERVER_ERROR;
+        }
+        str_msg = c_buf;
+        char c_send[] = "HTTP/1.0 200 OK\r\nContent-Length: 13\r\nContent-Type: text/html\r\n\r\nhello, world.";
+        if (send(i_client, c_send, sizeof(c_send), 0) < 0)
+        {
+            close(i_server);
+            close(i_client);
+            return SERVER_ERROR;
+        }
     }
-    return true;
+    close(i_server);
+    close(i_client);
+    return SERVER_SUCCESS;
 }
 
-bool kajiiiro_server::send()
-{
-    sleep(5);
-    QTcpSocket *client = m_server->nextPendingConnection();
-    QStringList lines;
-    while (client->canReadLine())
-        lines.append(client->readLine());
-    QMessageBox::information(
-                0
-                ,QObject::tr("receive\n")
-                ,lines.join("/")
-                ,QMessageBox::Ok);
-    QDataStream out(client);
-    // disconnect
-    out << quint16(0xFFFF);
-    client->close();
-    return true;
-}
-
-QTcpServer* kajiiiro_server::getServer()
-{
-    return m_server;
-}

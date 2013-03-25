@@ -1,19 +1,15 @@
 #ifndef KAJIIIRO_SERVER_H
 #define KAJIIIRO_SERVER_H
 
-class QString;
-class QTcpServer;
+#include <string>
+
+const int SERVER_SUCCESS = 0;
+const int SERVER_ERROR = 1;
 
 class kajiiiro_server
 {
 public:
-    kajiiiro_server();
-    bool session(int port, QString& error_msg);
-    bool send();
-    QTcpServer* getServer();
-
-private:
-    QTcpServer *m_server;
+    int start(std::string& str_msg);
 };
 
 #endif // KAJIIIRO_SERVER_H

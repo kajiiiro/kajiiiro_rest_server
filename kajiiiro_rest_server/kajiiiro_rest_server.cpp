@@ -18,8 +18,11 @@ kajiiiro_rest_server::kajiiiro_rest_server(QWidget *parent) :
 kajiiiro_rest_server::~kajiiiro_rest_server()
 {
     delete ui;
+    ui = NULL;
     delete m_db;
+    m_db = NULL;
     delete m_server;
+    m_server = NULL;
 }
 
 void kajiiiro_rest_server::on_pushButton_load_clicked()
@@ -54,15 +57,9 @@ void kajiiiro_rest_server::on_pushButton_start_clicked()
     }
     // サーバ起動
     m_server = new kajiiiro_server;
-    {
-        QString error_msg;
-        if (false == m_server->session(m_port, error_msg))
-        {
-            ui->label_status->setText(error_msg);
-            return;
-        }
-    }
-    QObject::connect(m_server->getServer(), SIGNAL(newConnection()), this, SLOT(send()));
+    std::string str_msg;
+    m_server->start(str_msg);
+    ui->textBrowser->setText(str_msg.c_str());
     ui->label_status->setText("running server");
 }
 
@@ -77,9 +74,4 @@ void kajiiiro_rest_server::on_pushButton_stop_clicked()
     delete m_server;
     m_server = NULL;
     ui->label_status->setText("stop server");
-}
-
-void kajiiiro_rest_server::send()
-{
-    m_server->send();
 }

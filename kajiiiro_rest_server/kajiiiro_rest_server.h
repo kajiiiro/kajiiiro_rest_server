@@ -24,8 +24,6 @@ private slots:
 
     void on_pushButton_stop_clicked();
 
-    void send();
-
 private:
     Ui::kajiiiro_rest_server *ui;
     kajiiiro_db *m_db;
