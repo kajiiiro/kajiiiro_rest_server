@@ -16,6 +16,7 @@ public:
         ,const QString& user
         ,const QString& pass
     );
+    bool createResource(const QString& uri);
 private:
     QSqlDatabase *m_db;
 };

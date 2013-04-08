@@ -36,16 +36,6 @@ void kajiiiro_rest_server::on_pushButton_load_clicked()
     {
         return;
     }
-    QSqlQuery query("select * from configure");
-    while (query.next())
-    {
-        m_port = query.value(3).toInt();
-        ui->label_information->setText(query.value(0).toString()
-                                       + query.value(1).toString()
-                                       + query.value(2).toString()
-                                       + query.value(3).toString()
-                                       + query.value(4).toString());
-    }
 }
 
 void kajiiiro_rest_server::on_pushButton_start_clicked()
