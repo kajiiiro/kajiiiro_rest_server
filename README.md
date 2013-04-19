@@ -1,15 +1,15 @@
 kajiiiro_rest_server
 ====================
+rest webサーバ
+観点はすぐに使えて簡単に試せること。
+いつも感じることだが、
+とにかくwebを試したいのに設定ファイルを変えたり、
+webアプリを作りたいのに色々準備したり、
+c++用のwebサーバがなかったり…
+もう色々面倒い！
 
-restを用いたサーバ
-意味の不明な英語だったらすみません。
+だから作ります。
 
-This is RESTful server using Qt.
-But now, I think I stop to use Qt.
-Because Qt is easy to create program, and too kind to study program.
-
-So, I'll create the follow by myself.
-  * REST cgi
-  * GUI controller
-And I want to use apache.
-Apache call my cgi
+・c++フルスクラッチのwebサーバ
+・学習用であり、ライブラリ非依存
+・RESTfulに対応
