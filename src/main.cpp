@@ -2,6 +2,7 @@
 
 #include "db.h"
 #include "uri.h"
+#include "session.h"
 
 #define P(message) std::cout << message << std::endl
 #define E(message) std::cerr << message << std::endl
@@ -9,30 +10,51 @@
 
 using namespace std;
 
-int main(int argc, char **argv)
+void testUri()
 {
-    kajiiiro::Db config;
-    const string SERVER_PORT = "port";
-    config.addValue(SERVER_PORT, 80);
-    int iPort = 0;
-    if (false == config.getValue(SERVER_PORT, iPort))
-    {
-        E("get " << SERVER_PORT << " error");
-        return 1;
-    }
-    P(SERVER_PORT << " = " << iPort);
-    kajiiiro::Uri uri;
+	kajiiiro::Uri uri;
     string strUri = "http://localhost:8080/kajiro/yota/?age=24&action=delete";
     if (false == uri.setUri(strUri))
     {
         E("set uri [" << strUri << "] error");
-        return 1;
+        return;
     }
     P("scheme  : " << uri.getScheme());
     P("host    : " << uri.getHost());
     P("port    : " << uri.getPort());
     FOR(uri.getResource()) P("resource: " << *it);
     FOR(uri.getQueryString()) P(it->first << ", " << it->second);
+}
+
+void testDb()
+{
+	kajiiiro::Db config;
+    const string SERVER_PORT = "port";
+    config.addValue(SERVER_PORT, 80);
+    int iPort = 0;
+    if (false == config.getValue(SERVER_PORT, iPort))
+    {
+        E("get " << SERVER_PORT << " error");
+        return;
+    }
+    P(SERVER_PORT << " = " << iPort);
+}
+
+void testSession()
+{
+	P("start");
+	kajiiiro::Session session;
+	if (false == session.startAccept(7766))
+	{
+		E("accept error");
+		return;
+	}
+	P("accept ok");
+}
+
+int main(int argc, char **argv)
+{
+    testSession();
     return 0;
 }
 

@@ -23,16 +23,8 @@ public:
     const std::map<std::string, std::string>& getQueryString() const;
     const int& getPort() const;
 private:
-    std::string mStrScheme;
-    std::string mStrHost;
-    std::vector<std::string> mVecStrResource;
-    std::map<std::string, std::string> mQueryString;
-    int miPort;
-    // URIから必要な情報を探す
-    std::string::size_type FindScheme(const std::string &strUri);
-    std::string::size_type FindHost(const std::string &strUri);
-    std::string::size_type FindResource(const std::string &strUri);
-    std::string::size_type FindQueryString(const std::string &strUri);
+	class impl;
+	impl *pImpl;
 };
 
 
