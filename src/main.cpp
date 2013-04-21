@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "helper.h"
 #include "db.h"
 #include "uri.h"
 #include "session.h"
@@ -52,9 +53,26 @@ void testSession()
 	P("accept ok");
 }
 
+void testHelper()
+{
+	kajiiiro::Helper helper;
+	std::string str = "  trim test word       ";
+	P("[" << str << "]");
+	str = helper.trimWhiteSpace(str);
+	P("[" << str << "]");
+	str = "   split  test   word   ";
+	std::vector<std::string> vec_str;
+	P("[" << str << "]");
+	if (helper.splitStringList(str, " ", vec_str))
+	{
+		FOR(vec_str) P("[" << *it << "]");
+	}
+}
+
 int main(int argc, char **argv)
 {
-    testSession();
+//    testSession();
+	testHelper();
     return 0;
 }
 

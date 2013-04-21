@@ -17,8 +17,8 @@ public:
     void setRequest(const std::string &strRequest);
     const std::string& getMethod() const;
     const std::vector<std::string>& getResource() const;
-	const std::map<std::string, std::string>& getOtherHeader() const;
 	const std::string& getBody() const;
+	const std::map<std::string, std::string>& getOtherHeader() const;
 
 private:
     class impl;

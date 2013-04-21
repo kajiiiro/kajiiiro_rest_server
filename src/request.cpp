@@ -10,7 +10,8 @@ class Request::impl
 public:
 	std::string mStrMethod;
 	std::string mStrBody;
-	std::map<std::string, std::string> mOtherHeader; 
+	std::map<std::string, std::string> mOtherHeader;
+	std::vector<std::string> mVecResource;
 };
 
 Request::Request() : pImpl(new Request::impl())
@@ -23,11 +24,38 @@ Request::~Request()
 	delete pImpl;
 }
 
-void Request::setRequest(const std::string &strRequest);
-const std::string& Request::getMethod() const;
-const std::vector<std::string>& Request::getResource() const;
-const std::string& Request::getBody() const;
-const std::map<std::string, std::string>& Request::getOtherHeader() const;
+void Request::setRequest(const std::string &strRequest)
+{
+	std::string newLine("\n");
+	std::string std4EasilyWorked = strRequest;
+	std::string::size_type sizeNewLine;
+	// 改行をすべて\nにする
+	while (std::string::npos == (sizeNewLine = std4EasilyWorked.find("\r\n")))
+	{
+		std4EasilyWorked.replace(sizeNewLine, newLine.size(), newLine);
+	}
+	// 一行
+}
+
+const std::string& Request::getMethod() const
+{
+	pImpl->mStrMethod;
+}
+
+const std::vector<std::string>& Request::getResource() const
+{
+	pImpl->mVecResource;
+}
+
+const std::string& Request::getBody() const
+{
+	pImpl->mStrBody;
+}
+
+const std::map<std::string, std::string>& Request::getOtherHeader() const
+{
+	pImpl->mOtherHeader;
+}
 
 GET / HTTP/1.1
 Host: localhost:7766
