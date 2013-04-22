@@ -5,6 +5,9 @@
 #include <netinet/in.h>
 #include <string>
 
+#include "define.h"
+#include "request.h"
+#include "response.h"
 #include "session.h"
 
 namespace kajiiiro
@@ -19,6 +22,7 @@ public:
 	~impl()
 	{
 		close(mSocket);
+		FOR(mVecClientSocket) close(*it);
 	}
 
 	bool createSocket()
@@ -62,42 +66,45 @@ public:
 		return true;
 	}
 
-	bool acceptClient()
+	int acceptClient()
 	{
-		char buf[1024];
-		memset(buf, 0, sizeof(buf));
-		snprintf(buf, sizeof(buf),
-			"HTTP/1.0 200 OK\r\n"
-			"Content-Length: 5\r\n"
-			"Content-Type: text/html\r\n"
-			"\r\n"
-			"HELLO\r\n");
-
 		sockaddr_in clientAddress;
+		int client;
 		while (1)
 		{
 			int len = sizeof(clientAddress);
-			int sock = accept(mSocket, reinterpret_cast<sockaddr *>(&clientAddress)
+			client = accept(mSocket, reinterpret_cast<sockaddr *>(&clientAddress)
 							, reinterpret_cast<socklen_t *>(&len));
-			if (sock < 0)
+			if (client < 0)
 			{
 				perror("accept");
-				break;
+				return -1;
 			}
-			char inbuf[1024];
-			memset(inbuf, 0, sizeof(inbuf));
-			recv(sock, inbuf, sizeof(inbuf), 0);
-			printf("%s", inbuf);
-			send(sock, buf, (int)strlen(buf), 0);
-			close(sock);
 		}
-		return true;
+		mVecClientSocket.push_back(client);
+		return client;
 	}
 
 	int mSocket;
+	std::vector<int> mVecClientSocket;
 	std::string mHost;
 	int mPort;
 };
+
+bool Session::sendMessage(Response &response)
+{
+	std::string strResponse = response.getResponse();
+	send(response.getClient(), strResponse.c_str(), strResponse.size(), 0);
+	return true;
+}
+
+bool Session::recvMessage(Request &request)
+{
+	char inbuf[2048];
+	recv(request.getClient(), inbuf, sizeof(inbuf), 0);
+	request.setRequest(inbuf);
+	return true;
+}
 
 Session::Session() : pImpl(new Session::impl())
 {
@@ -109,7 +116,7 @@ Session::~Session()
 	delete pImpl;
 }
 
-bool Session::startAccept(int iPort)
+bool Session::ready(int iPort)
 {
 	pImpl->mPort = iPort;
 	if (false == pImpl->createSocket())
@@ -120,11 +127,12 @@ bool Session::startAccept(int iPort)
 	{
 		return false;
 	}
-	if (false == pImpl->acceptClient())
-	{
-		return false;
-	}
 	return true;
+}
+
+int Session::startAccept()
+{
+	return pImpl->acceptClient();
 }
 
 }; // namespace

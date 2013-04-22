@@ -4,17 +4,19 @@ namespace kajiiiro
 {
 
 class Db;
+class Listener;
 
 // Uriを扱うクラス
 class Server
 {
 public:
-    Server();
-    ~Server();
-    Server(const Server &copy) = delete;
-    const Server& operator=(const Server &copy) = delete;
-    bool start(const Db &config);
-	//void addListener();
+	Server();
+	~Server();
+	Server(const Server &copy) = delete;
+	const Server& operator=(const Server &copy) = delete;
+	bool start(const Db &config);
+	void addListener(const Listener &listener);
+
 private:
 	class impl;
 	impl *pImpl;

@@ -10,19 +10,23 @@ namespace kajiiiro
 class Request
 {
 public:
-    Request();
-    ~Request();
-    Request(const Request &copy) = delete;
-    const Request& operator=(const Request &copy) = delete;
-    void setRequest(const std::string &strRequest);
-    const std::string& getMethod() const;
-    const std::vector<std::string>& getResource() const;
+	Request() = delete;
+	Request(const int &iClientFD);
+	~Request();
+	Request(const Request &copy) = delete;
+	const Request& operator=(const Request &copy) = delete;
+	void setRequest(const std::string &strRequest);
+	const std::string& getMethod() const;
+	const std::vector<std::string>& getResource() const;
 	const std::string& getBody() const;
 	const std::map<std::string, std::string>& getOtherHeader() const;
+	std::string getRequest() const;
 
 private:
-    class impl;
-    impl *pImpl;
+	int getClient() const;
+	friend class Session;
+	class impl;
+	impl *pImpl;
 };
 
 }; // namespace

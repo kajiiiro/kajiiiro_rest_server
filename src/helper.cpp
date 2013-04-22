@@ -3,23 +3,41 @@
 namespace kajiiiro
 {
 
-bool Helper::splitStringList(const std::string& str_list
-                     , const std::string& str_delimiter
-                     , std::vector<std::string>& vec_str)
+std::string Helper::getBeforeKeyWord(const std::string& str, const std::string& key_word)
 {
-    if (("" == str_list) || ("" == str_delimiter)) return false;
-    std::string tmp = this->trimWhiteSpace(str_list);
-    std::string::size_type si_current = 0;
-    std::string::size_type si_found   = 0;
-    while (std::string::npos != (si_found = tmp.find(str_delimiter, si_current)))
-    {
-    	// 区切りが連続した場合は空をいれてしまうので、それを確認後に挿入する
-    	if ("" != tmp.substr(si_current, si_found - si_current))
-    		vec_str.push_back(tmp.substr(si_current, si_found - si_current));
-        si_current = si_found + str_delimiter.size();
-    }
-    vec_str.push_back(tmp.substr(si_current));
-    return true;
+	std::string::size_type index = str.find(key_word);
+	if (std::string::npos == index)
+		return std::string();
+	return str.substr(0, index);
+}
+
+std::string Helper::getAfterKeyWord(const std::string& str, const std::string& key_word)
+{
+	std::string::size_type index = str.find(key_word);
+	if (std::string::npos == index)
+		return std::string();
+	return str.substr(index + key_word.size());
+}
+
+bool Helper::splitStringList(const std::string& str_list
+		, const std::string& str_delimiter
+		, std::vector<std::string>& vec_str)
+{
+	if (("" == str_list) || ("" == str_delimiter)) return false;
+	std::string tmp = this->trimWhiteSpace(str_list);
+	std::string::size_type si_current = 0;
+	std::string::size_type si_found   = 0;
+	while (std::string::npos != (si_found = tmp.find(str_delimiter, si_current)))
+	{
+		// 区切りが連続した場合は空をいれてしまうので、それを確認後に挿入する
+		if ("" != tmp.substr(si_current, si_found - si_current))
+			vec_str.push_back(tmp.substr(si_current, si_found - si_current));
+		si_current = si_found + str_delimiter.size();
+	}
+	// 区切りが連続した場合は空をいれてしまうので、それを確認後に挿入する
+	if ("" != tmp.substr(si_current))
+		vec_str.push_back(tmp.substr(si_current));
+	return true;
 }
 
 std::string Helper::trimWhiteSpace(const std::string& str)
