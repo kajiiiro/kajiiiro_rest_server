@@ -10,7 +10,7 @@ namespace kajiiiro
 // 唯一認めているのは、以下のcoutを有意義に使用する方法
 
 #define P(message) std::cout << message << std::endl
-#define E(message) std::cerr << message << std::endl
+#define E(message) std::cerr << "[ERROR]" << message << std::endl
 
 // 以下もわざわざコールバック作るの面倒だから定義しちゃう
 // stl roop
@@ -49,7 +49,7 @@ const std::string STATUSCODEWORD_405("405 Method Not Allowed");
 const std::string STATUSCODEWORD_500("500 Internal Server Error");
 
 const std::string HTTP_HEADER_CONTENT_LENGTH("Content-Length");
-const std::string HTTP_HEADER_TRANSFOR_ENCODING("Transfer-Encoding: chunked");
+const std::string HTTP_HEADER_TRANSFOR_ENCODING(std::string("Transfer-Encoding: chunked") + LINE_DELIMITER);
 
 const std::string SERVER_PORT("port");
 

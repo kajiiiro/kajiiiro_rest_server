@@ -69,17 +69,13 @@ public:
 	int acceptClient()
 	{
 		sockaddr_in clientAddress;
-		int client;
-		while (1)
+		int len = sizeof(clientAddress);
+		int client = accept(mSocket, reinterpret_cast<sockaddr *>(&clientAddress)
+						, reinterpret_cast<socklen_t *>(&len));
+		if (client < 0)
 		{
-			int len = sizeof(clientAddress);
-			client = accept(mSocket, reinterpret_cast<sockaddr *>(&clientAddress)
-							, reinterpret_cast<socklen_t *>(&len));
-			if (client < 0)
-			{
-				perror("accept");
-				return -1;
-			}
+			perror("accept");
+			return -1;
 		}
 		mVecClientSocket.push_back(client);
 		return client;
@@ -91,17 +87,22 @@ public:
 	int mPort;
 };
 
-bool Session::sendMessage(Response &response)
+bool Session::sendMessage(Response &response) const
 {
 	std::string strResponse = response.getResponse();
-	send(response.getClient(), strResponse.c_str(), strResponse.size(), 0);
+	int result = send(response.getClient(), strResponse.c_str(), strResponse.size(), 0);
+	if (result < 0)
+		return false;
 	return true;
 }
 
-bool Session::recvMessage(Request &request)
+bool Session::recvMessage(Request &request) const
 {
-	char inbuf[2048];
-	recv(request.getClient(), inbuf, sizeof(inbuf), 0);
+	char inbuf[1024];
+	memset(inbuf, '\0', sizeof(inbuf));
+	int result = recv(request.getClient(), inbuf, sizeof(inbuf), 0);
+	if (result < 0)
+		return false;
 	request.setRequest(inbuf);
 	return true;
 }
@@ -133,6 +134,26 @@ bool Session::ready(int iPort)
 int Session::startAccept()
 {
 	return pImpl->acceptClient();
+}
+
+bool Session::disconnectSession(const Response &response)
+{
+	// 保持しているクライアントから除外する
+	if (close(response.getClient()) < 0)
+	{
+		perror("close");
+		return false;
+	}
+	P("disconnect client >> " << response.getClient());
+	FOR(pImpl->mVecClientSocket)
+	{
+		if (response.getClient() == *it)
+		{
+			pImpl->mVecClientSocket.erase(it);
+			break;
+		}
+	}
+	return true;
 }
 
 }; // namespace

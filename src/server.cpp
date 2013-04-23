@@ -1,17 +1,35 @@
+#include <csignal>
 #include "define.h"
 #include "db.h"
 #include "request.h"
 #include "response.h"
 #include "session.h"
 #include "server.h"
+#include "listener.h"
 
 namespace kajiiiro
 {
 
+void catchSignal(int sig)
+{
+	P("");
+	P("BYE");
+	P("");
+	exit(0);
+}
+
 class Server::impl
 {
 public:
-	int id;
+	impl() : listener(NULL)
+	{
+	
+	}
+	~impl()
+	{
+		delete listener;
+	}
+	Listener *listener;
 };
 
 Server::Server() : pImpl(new impl())
@@ -32,24 +50,52 @@ bool Server::start(const Db &config)
 		iPort = 7766;
 
 	Session session;
+	P("session.ready");
 	if (false == session.ready(iPort))
+	{
+		E("session.ready");
 		return false;
+	}
 
-	int iClientFD = session.startAccept();
-	if (iClientFD < 0)
+	signal(SIGINT, catchSignal);
+	while (1)
+	{
+		P("session.startAccept");
+		int iClientFD = session.startAccept();
+		if (iClientFD < 0)
+		{
+			E("session.startAccept");
+			return false;
+		}
+		P("client >> " << iClientFD);
+		// 受信
+		Request request(iClientFD);
+		P("session.recvMessage");
+		if (false == session.recvMessage(request))
+		{
+			E("session.recvMessage");
+			return false;
+		}
+		// 送信
+		Response response(iClientFD);
+		if (false == pImpl->listener->act(request, response, session))
+		{
+			E("listener.act");
+			return false;
+		}
+	}
+	return true;
+}
+
+bool Server::setListener(Listener *listener)
+{
+	if (NULL != pImpl->listener)
+	{
+		E("pImpl->listener");
 		return false;
-	// 受信
-	Request request(iClientFD);
-	session.recvMessage(request);
-	P("=====  recv [" << request.getRequest() <<  "]");
-	// 送信
-	Response response(iClientFD);
-	std::map<std::string, std::string> headerData;
-	headerData.insert(std::pair<std::string, std::string>(
-		"Content-Type", "text/html"));
-	response.setOtherHeader(headerData);
-	response.setBody("<h1>Hello<h1>");
-	session.sendMessage(response);
+	}
+	// listenerの登録
+	pImpl->listener = listener;
 	return true;
 }
 

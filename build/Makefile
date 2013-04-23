@@ -6,7 +6,8 @@ OBJ    = main.o\
 		session.o\
 		request.o\
 		response.o\
-		server.o
+		server.o\
+		sampleListener.o
 
 CXXFLAGS = -Wall -std=c++0x
 

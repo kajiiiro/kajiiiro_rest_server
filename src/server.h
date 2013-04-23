@@ -6,7 +6,6 @@ namespace kajiiiro
 class Db;
 class Listener;
 
-// Uriを扱うクラス
 class Server
 {
 public:
@@ -15,7 +14,8 @@ public:
 	Server(const Server &copy) = delete;
 	const Server& operator=(const Server &copy) = delete;
 	bool start(const Db &config);
-	void addListener(const Listener &listener);
+	// メモリもServerクラスのデストラクタ内部で解放する
+	bool setListener(Listener *listener);
 
 private:
 	class impl;

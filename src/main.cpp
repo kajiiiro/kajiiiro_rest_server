@@ -6,6 +6,8 @@
 #include "request.h"
 #include "response.h"
 #include "server.h"
+#include "listener.h"
+#include "sampleListener.h"
 
 using namespace std;
 
@@ -131,6 +133,7 @@ void testServer()
 	kajiiiro::Db config;
 	kajiiiro::Server server;
 	P("start");
+	server.setListener(new kajiiiro::SamplePrintRequestListener());
 	server.start(config);
 	P("stop");
 }

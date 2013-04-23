@@ -16,8 +16,9 @@ public:
 	const Session& operator=(const Session &copy) = delete;
 	bool ready(int iPort);
 	int startAccept();
-	bool sendMessage(Response &response);
-	bool recvMessage(Request &request);
+	bool sendMessage(Response &response) const;
+	bool recvMessage(Request &request) const;
+	bool disconnectSession(const Response &response);
 
 private:
 	class impl;

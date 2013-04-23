@@ -58,7 +58,7 @@ std::string Response::getResponse() const
 		strResponse += pImpl->mContentLength;
 	FOR(pImpl->mOtherHeader)
 	{
-		strResponse += it->first + HTTP_HEADER_DELIMITER + WHITESPACE + it->second;
+		strResponse += it->first + HTTP_HEADER_DELIMITER + WHITESPACE + it->second + LINE_DELIMITER;
 	}
 	strResponse += HTTP_BODY_DELIMITER;
 	strResponse += pImpl->mBody;
@@ -86,7 +86,7 @@ bool Response::setBody(const std::string &strBody)
 		return false;
 	pImpl->mBody = strBody;
 	std::stringstream ss;
-	ss << HTTP_HEADER_CONTENT_LENGTH << HTTP_HEADER_DELIMITER << WHITESPACE << pImpl->mBody.size();
+	ss << HTTP_HEADER_CONTENT_LENGTH << HTTP_HEADER_DELIMITER << WHITESPACE << pImpl->mBody.size() << LINE_DELIMITER;
 	pImpl->mContentLength = ss.str();
 	return true;
 }
