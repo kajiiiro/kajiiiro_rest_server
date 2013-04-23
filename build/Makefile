@@ -9,11 +9,12 @@ OBJ    = main.o\
 		sampleListener.o
 
 CXXFLAGS = -Wall -std=c++0x
+LIB = -lpthread
 
 all:${TARGET}
 
 ${TARGET}:${OBJ}
-	${CXX} -o ${TARGET} ${OBJ}
+	${CXX} -o ${TARGET} ${OBJ} ${LIB}
 
 %.o:../src/%.cpp
 	${CXX} -c ${CXXFLAGS} $^

@@ -1,4 +1,5 @@
 #include <csignal>
+#include <pthread.h>
 #include "define.h"
 #include "request.h"
 #include "response.h"
@@ -20,6 +21,7 @@ void catchSignal(int sig)
 class Server::impl
 {
 public:
+	friend struct ReqResSes4Thread;
 	impl() : listener(NULL)
 	{
 	
@@ -29,36 +31,54 @@ public:
 		delete listener;
 	}
 	Listener *listener;
-	void callListener(const Request &request, Response &response, Session &session)
-	{
-		if (NULL == listener)
-		{
-			E("not set listener");
-			return;
-		}
-		if (HTTP_METHOD_GET == request.getMethod())
-		{
-			listener->doGet(request, response, session);
-		}
-		else if (HTTP_METHOD_PUT == request.getMethod())
-		{
-			listener->doPut(request, response, session);
-		}
-		else if (HTTP_METHOD_POST == request.getMethod())
-		{
-			listener->doPost(request, response, session);
-		}
-		else if (HTTP_METHOD_DELETE == request.getMethod())
-		{
-			listener->doDelete(request, response, session);
-		}
-		else
-		{
-			response.setStatusCode(405);
-			session.sendMessage(response);
-		}
-	}
 };
+
+// スレッドのためだけの格納構造体
+struct ReqResSes4Thread
+{
+	Request *request;
+	Response *response;
+	Session *session;
+	Listener *listener;
+};
+
+void* startThread(void *arg)
+{
+	ReqResSes4Thread *tmp = static_cast<ReqResSes4Thread*>(arg);
+	// 受信
+	if (false == tmp->session->recvMessage(*(tmp->request)))
+	{
+		E("session.recvMessage");
+		return arg;
+	}
+	P("request =============================================== start");
+	P(tmp->request->getRequest());
+	P("request =============================================== end");
+	// 送信
+	if (HTTP_METHOD_GET == tmp->request->getMethod())
+	{
+		tmp->listener->doGet(*(tmp->request), *(tmp->response), *(tmp->session));
+	}
+	else if (HTTP_METHOD_PUT == tmp->request->getMethod())
+	{
+		tmp->listener->doPut(*(tmp->request), *(tmp->response), *(tmp->session));
+	}
+	else if (HTTP_METHOD_POST == tmp->request->getMethod())
+	{
+		tmp->listener->doPost(*(tmp->request), *(tmp->response), *(tmp->session));
+	}
+	else if (HTTP_METHOD_DELETE == tmp->request->getMethod())
+	{
+		tmp->listener->doDelete(*(tmp->request), *(tmp->response), *(tmp->session));
+	}
+	else
+	{
+		tmp->response->setStatusCode(405);
+		tmp->session->sendMessage(*(tmp->response));
+		tmp->session->disconnectSession(*(tmp->response));
+	}
+	return arg;
+}
 
 Server::Server() : pImpl(new impl())
 {
@@ -79,6 +99,11 @@ bool Server::start(int iPort)
 		E("session.ready");
 		return false;
 	}
+	if (NULL == pImpl->listener)
+	{
+		E("not set listener");
+		return false;
+	}
 
 	signal(SIGINT, catchSignal);
 	while (1)
@@ -91,17 +116,16 @@ bool Server::start(int iPort)
 			return false;
 		}
 		P("client >> " << iClientFD);
-		// 受信
 		Request request(iClientFD);
-		P("session.recvMessage");
-		if (false == session.recvMessage(request))
+		Response response(iClientFD);
+		ReqResSes4Thread threadArg = {&request, &response, &session, pImpl->listener};
+		pthread_t threadListener;
+		if (0 != pthread_create(&threadListener, NULL, startThread, &threadArg))
 		{
-			E("session.recvMessage");
+			E("pthread_create");
 			return false;
 		}
-		// 送信
-		Response response(iClientFD);
-		pImpl->callListener(request, response, session);
+		pthread_detach(threadListener);
 	}
 	return true;
 }
