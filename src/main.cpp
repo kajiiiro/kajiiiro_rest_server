@@ -130,11 +130,10 @@ void testResponse()
 
 void testServer()
 {
-	kajiiiro::Db config;
 	kajiiiro::Server server;
 	P("start");
 	server.setListener(new kajiiiro::SamplePrintRequestListener());
-	server.start(config);
+	server.start(kajiiiro::Db());
 	P("stop");
 }
 
