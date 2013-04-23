@@ -31,6 +31,7 @@ server.setListener(new kajiiiro::SampleRestListener());
 
 server.start();
 
+ホスト:7766にブラウザでアクセスしてみてください。
 その他、APIはヘッダファイルをみること。簡単です。
 
 【課題】
