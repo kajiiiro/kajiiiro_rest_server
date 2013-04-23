@@ -1,9 +1,10 @@
 #pragma once
 
+#include <string>
+
 namespace kajiiiro
 {
 
-class Db;
 class Listener;
 
 class Server
@@ -13,7 +14,7 @@ public:
 	~Server();
 	Server(const Server &copy) = delete;
 	const Server& operator=(const Server &copy) = delete;
-	bool start(const Db &config);
+	bool start(const int iPort = 7766);
 	// メモリもServerクラスのデストラクタ内部で解放する
 	bool setListener(Listener *listener);
 

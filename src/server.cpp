@@ -1,6 +1,5 @@
 #include <csignal>
 #include "define.h"
-#include "db.h"
 #include "request.h"
 #include "response.h"
 #include "session.h"
@@ -30,6 +29,35 @@ public:
 		delete listener;
 	}
 	Listener *listener;
+	void callListener(const Request &request, Response &response, Session &session)
+	{
+		if (NULL == listener)
+		{
+			E("not set listener");
+			return;
+		}
+		if (HTTP_METHOD_GET == request.getMethod())
+		{
+			listener->doGet(request, response, session);
+		}
+		else if (HTTP_METHOD_PUT == request.getMethod())
+		{
+			listener->doPut(request, response, session);
+		}
+		else if (HTTP_METHOD_POST == request.getMethod())
+		{
+			listener->doPost(request, response, session);
+		}
+		else if (HTTP_METHOD_DELETE == request.getMethod())
+		{
+			listener->doDelete(request, response, session);
+		}
+		else
+		{
+			response.setStatusCode(405);
+			session.sendMessage(response);
+		}
+	}
 };
 
 Server::Server() : pImpl(new impl())
@@ -42,13 +70,8 @@ Server::~Server()
 	delete pImpl;
 }
 
-bool Server::start(const Db &config)
+bool Server::start(int iPort)
 {
-	int iPort = 0;
-	// 設定がなければデフォルトを使用
-	if (false == config.getValue(SERVER_PORT, iPort))
-		iPort = 7766;
-
 	Session session;
 	P("session.ready");
 	if (false == session.ready(iPort))
@@ -78,11 +101,7 @@ bool Server::start(const Db &config)
 		}
 		// 送信
 		Response response(iClientFD);
-		if (false == pImpl->listener->act(request, response, session))
-		{
-			E("listener.act");
-			return false;
-		}
+		pImpl->callListener(request, response, session);
 	}
 	return true;
 }

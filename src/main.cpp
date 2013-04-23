@@ -1,6 +1,5 @@
 #include "define.h"
 #include "helper.h"
-#include "db.h"
 #include "uri.h"
 #include "session.h"
 #include "request.h"
@@ -25,20 +24,6 @@ void testUri()
 	P("port    : " << uri.getPort());
 	FOR(uri.getResource()) P("resource: " << *it);
 	FOR(uri.getQueryString()) P(it->first << ", " << it->second);
-}
-
-void testDb()
-{
-	kajiiiro::Db config;
-	const string SERVER_PORT = "port";
-	config.addValue(SERVER_PORT, 80);
-	int iPort = 0;
-	if (false == config.getValue(SERVER_PORT, iPort))
-	{
-		E("get " << SERVER_PORT << " error");
-		return;
-	}
-	P(SERVER_PORT << " = " << iPort);
 }
 
 void testHelper()
@@ -132,8 +117,8 @@ void testServer()
 {
 	kajiiiro::Server server;
 	P("start");
-	server.setListener(new kajiiiro::SamplePrintRequestListener());
-	server.start(kajiiiro::Db());
+	server.setListener(new kajiiiro::SampleRestListener());
+	server.start();
 	P("stop");
 }
 

@@ -1,6 +1,5 @@
 TARGET = kajiiiro
 OBJ    = main.o\
-		db.o\
 		uri.o\
 		helper.o\
 		session.o\

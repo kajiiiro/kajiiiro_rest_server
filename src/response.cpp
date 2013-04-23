@@ -60,7 +60,7 @@ std::string Response::getResponse() const
 	{
 		strResponse += it->first + HTTP_HEADER_DELIMITER + WHITESPACE + it->second + LINE_DELIMITER;
 	}
-	strResponse += HTTP_BODY_DELIMITER;
+	strResponse += LINE_DELIMITER;
 	strResponse += pImpl->mBody;
 	return strResponse;
 }

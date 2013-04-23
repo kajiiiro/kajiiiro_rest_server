@@ -27,9 +27,11 @@ c++用のwebサーバがなかったり…
 
 kajiiiro::Server server;
 
-server.setListener(new kajiiiro::SamplePrintRequestListener());
+server.setListener(new kajiiiro::SampleRestListener());
 
-server.start(kajiiiro::Db());
+server.start();
+
+その他、APIはヘッダファイルをみること。簡単です。
 
 【課題】
 
@@ -39,8 +41,6 @@ server.start(kajiiiro::Db());
 【クラス構成】
 
 ・Uri        URIの操作を行うクラス
-
-・Db         内部で保持するDBテーブルを真似たクラス
 
 ・Request    リクエスト情報を操作するクラス
 
