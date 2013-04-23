@@ -14,15 +14,21 @@ c++用のwebサーバがなかったり…
 だから作りました！
 
 ・フルスクラッチのc++webサーバ
+
 ・学習用であり、ライブラリ非依存
+
 ・RESTfulに対応
+
 ・とりあえずchromeからアクセスできる
 
 【使い方】
 
 // port 7766で起動します
+
 kajiiiro::Server server;
+
 server.setListener(new kajiiiro::SamplePrintRequestListener());
+
 server.start(kajiiiro::Db());
 
 【課題】
