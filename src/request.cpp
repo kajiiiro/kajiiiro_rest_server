@@ -42,15 +42,19 @@ std::string Request::getRequest() const
 
 void Request::setRequest(const std::string &strRequest)
 {
+	P("Request::setRequest start");
 	pImpl->mStrRequest = strRequest;
 	// まずはBodyとHeaderに分割
+	P("divide request");
 	Helper helper;
 	pImpl->mStrBody = helper.getAfterKeyWord(strRequest, HTTP_BODY_DELIMITER);
 	std::string strHeader = helper.getBeforeKeyWord(strRequest, HTTP_BODY_DELIMITER);
 	// Headerを一行づつ分割
+	P("divide header");
 	std::vector<std::string> vecHeader;
 	helper.splitStringList(strHeader, LINE_DELIMITER, vecHeader);
 	bool bFirstFlg = true;
+	P("get header information");
 	FOR(vecHeader)
 	{
 		// 一行目に関してはメソッド等を取得する

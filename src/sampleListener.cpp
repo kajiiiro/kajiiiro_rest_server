@@ -23,6 +23,10 @@ public:
 	// リソースの存在確認
 	bool existResource(const vector<string> vecRequestResource)
 	{
+		if (0 == vecRequestResource.size())
+		{
+			return true;
+		}
 		// 本当のリソースよりもおおきければエラー
 		if (mResource.size() < vecRequestResource.size())
 		{
@@ -80,10 +84,11 @@ public:
 
 SampleRestListener::SampleRestListener() : pImpl(new impl())
 {
+	// 添字は何でもいいけど、0からにしておく
+	pImpl->mHtml.insert(pair<int, string>(0, "<h1>this is sample page.</h1>"));
 	// 始めにtestリソースを作成しておく
 	pImpl->mResource.push_back("test");
-	// 添字は何でもいいけど、0からにしておく
-	pImpl->mHtml.insert(pair<int, string>(pImpl->mResource.size() - 1, "<h1>this is sample page.</h1>"));
+	pImpl->mHtml.insert(pair<int, string>(pImpl->mResource.size(), "<h1>test resource</h1>"));
 }
 
 SampleRestListener::~SampleRestListener()
@@ -102,7 +107,7 @@ void SampleRestListener::doGet(const Request &request, Response &response, Sessi
 	else
 	{
 		response.setStatusCode(200);
-		response.setBody(pImpl->mHtml[request.getResource().size() - 1]);
+		response.setBody(pImpl->mHtml[request.getResource().size()]);
 		session.sendMessage(response);
 	}
 	session.disconnectSession(response);
@@ -117,7 +122,7 @@ void SampleRestListener::doPut(const Request &request, Response &response, Sessi
 	}
 	else
 	{
-		pImpl->mHtml[request.getResource().size() - 1] = request.getBody();
+		pImpl->mHtml[request.getResource().size()] = request.getBody();
 		response.setStatusCode(204);
 		session.sendMessage(response);
 	}
@@ -134,7 +139,8 @@ void SampleRestListener::doPost(const Request &request, Response &response, Sess
 	}
 	else
 	{
-		pImpl->mHtml[request.getResource().size() - 1] = request.getBody();
+		pImpl->mHtml[request.getResource().size()] = request.getBody();
+		pImpl->mResource.push_back(request.getResource().back());
 		response.setStatusCode(201);
 		session.sendMessage(response);
 	}
@@ -152,7 +158,7 @@ void SampleRestListener::doDelete(const Request &request, Response &response, Se
 	else
 	{
 		// リソースと要素を削除
-		auto it = pImpl->mHtml.find(request.getResource().size() - 1);
+		auto it = pImpl->mHtml.find(request.getResource().size());
 		pImpl->mHtml.erase(it);
 		pImpl->mResource.pop_back();
 		response.setStatusCode(204);

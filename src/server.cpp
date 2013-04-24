@@ -33,7 +33,7 @@ public:
 	Listener *listener;
 };
 
-// スレッドのためだけの格納構造体
+// スレッドのためだけのポインタ格納構造体
 struct ReqResSes4Thread
 {
 	Request *request;
@@ -42,41 +42,67 @@ struct ReqResSes4Thread
 	Listener *listener;
 };
 
+// NULLを代入しているので、何度関数を呼んでも安心！
+// というかdeleteがNULL代入もやってくれよ……
+void deletePointerAndSetNull(ReqResSes4Thread *pointerBox)
+{
+	delete pointerBox->request;
+	pointerBox->request = NULL;
+	delete pointerBox->response;
+	pointerBox->response = NULL;
+}
+
+// request, responseはメモリを解放する必要がある
 void* startThread(void *arg)
 {
-	ReqResSes4Thread *tmp = static_cast<ReqResSes4Thread*>(arg);
+	Request *request = (static_cast<ReqResSes4Thread*>(arg))->request;
+	Response *response = (static_cast<ReqResSes4Thread*>(arg))->response;
+	Session *session = (static_cast<ReqResSes4Thread*>(arg))->session;
+	Listener *listener = (static_cast<ReqResSes4Thread*>(arg))->listener;
 	// 受信
-	if (false == tmp->session->recvMessage(*(tmp->request)))
+	P("recv request");
+	do
 	{
-		E("session.recvMessage");
-		return arg;
+		if (false == session->recvMessage(*request))
+		{
+			E("session.recvMessage");
+			break;
+		}
+		P("request =============================================== start");
+		P(request->getRequest());
+		P("request =============================================== end");
+		// 送信
+		P("check method");
+		if (HTTP_METHOD_GET == request->getMethod())
+		{
+			P("do get");
+			listener->doGet(*request, *response, *session);
+		}
+		else if (HTTP_METHOD_PUT == request->getMethod())
+		{
+			P("do put");
+			listener->doPut(*request, *response, *session);
+		}
+		else if (HTTP_METHOD_POST == request->getMethod())
+		{
+			P("do post");
+			listener->doPost(*request, *response, *session);
+		}
+		else if (HTTP_METHOD_DELETE == request->getMethod())
+		{
+			P("do delete");
+			listener->doDelete(*request, *response, *session);
+		}
+		else
+		{
+			E("not supported method");
+			response->setStatusCode(405);
+			session->sendMessage(*response);
+			session->disconnectSession(*response);
+		}
 	}
-	P("request =============================================== start");
-	P(tmp->request->getRequest());
-	P("request =============================================== end");
-	// 送信
-	if (HTTP_METHOD_GET == tmp->request->getMethod())
-	{
-		tmp->listener->doGet(*(tmp->request), *(tmp->response), *(tmp->session));
-	}
-	else if (HTTP_METHOD_PUT == tmp->request->getMethod())
-	{
-		tmp->listener->doPut(*(tmp->request), *(tmp->response), *(tmp->session));
-	}
-	else if (HTTP_METHOD_POST == tmp->request->getMethod())
-	{
-		tmp->listener->doPost(*(tmp->request), *(tmp->response), *(tmp->session));
-	}
-	else if (HTTP_METHOD_DELETE == tmp->request->getMethod())
-	{
-		tmp->listener->doDelete(*(tmp->request), *(tmp->response), *(tmp->session));
-	}
-	else
-	{
-		tmp->response->setStatusCode(405);
-		tmp->session->sendMessage(*(tmp->response));
-		tmp->session->disconnectSession(*(tmp->response));
-	}
+	while (false);
+	deletePointerAndSetNull(static_cast<ReqResSes4Thread*>(arg));
 	return arg;
 }
 
@@ -106,6 +132,7 @@ bool Server::start(int iPort)
 	}
 
 	signal(SIGINT, catchSignal);
+	pthread_t threadListener;
 	while (1)
 	{
 		P("session.startAccept");
@@ -116,15 +143,19 @@ bool Server::start(int iPort)
 			return false;
 		}
 		P("client >> " << iClientFD);
-		Request request(iClientFD);
-		Response response(iClientFD);
-		ReqResSes4Thread threadArg = {&request, &response, &session, pImpl->listener};
-		pthread_t threadListener;
+		Request *request = new Request(iClientFD);
+		Response *response = new Response(iClientFD);
+		ReqResSes4Thread threadArg = {request, response, &session, pImpl->listener};
+		// request, responseはスレッドの関数内部でメモリを解放する必要がある
+		P("thread start");
 		if (0 != pthread_create(&threadListener, NULL, startThread, &threadArg))
 		{
 			E("pthread_create");
+			// スレッドの作成に失敗した場合は自分でエラー処理でメモリを解放する
+			deletePointerAndSetNull(&threadArg);
 			return false;
 		}
+		P("thread end");
 		pthread_detach(threadListener);
 	}
 	return true;

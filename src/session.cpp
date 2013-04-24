@@ -98,11 +98,14 @@ bool Session::sendMessage(Response &response) const
 
 bool Session::recvMessage(Request &request) const
 {
+	P("recv message start");
 	char inbuf[1024];
 	memset(inbuf, '\0', sizeof(inbuf));
+	P("request.getClient");
 	int result = recv(request.getClient(), inbuf, sizeof(inbuf), 0);
 	if (result < 0)
 		return false;
+	P("request.setRequest");
 	request.setRequest(inbuf);
 	return true;
 }
